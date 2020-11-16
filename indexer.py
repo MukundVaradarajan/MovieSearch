@@ -31,7 +31,7 @@ class Index:
 
 	def pre_process_doc(self, doc):
 		tokens = word_tokenize(doc)
-		cleaned_tokens = [w for w in tokens if w not in en_stop]
+		cleaned_tokens = [w.lower() for w in tokens if w.lower() not in en_stop]
 		lem_tokens = [self.lemmatizer.lemmatize(token) for token in cleaned_tokens]
 		return lem_tokens
 
@@ -87,10 +87,14 @@ class Index:
 			return 0
 		return freq/max_freq
 
+	def get_idf(self, term):
+		return log(len(self.docs)/len(self.postings[term]))
+
 	def get_tfidf(self, term, doc):
 		tf = self.get_tf(term, doc)
-		idf = log(len(self.docs)/len(self.postings[term]))
+		idf = self.get_idf(term)
 		return tf*idf
+
 	def print(self):
 		print(self.get_corpus_size())
 		print(self.get_vocab_size())
