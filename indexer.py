@@ -80,12 +80,16 @@ class Index:
 
 	def get_tf(self, term, doc):
 		freq = self.doc_rep[doc][term]
-		max_freq = 0
-		for doc in doc_rep:
-			max_freq = max(max_freq, doc[term])
+		doc_dict = self.doc_rep[doc]
+		max_freq = max(list(doc_dict.values()))
 		if not freq:
 			return 0
 		return freq/max_freq
+
+	def get_midf(self, term):
+		dfr = len(self.postings[term])
+		ctf = sum(list(self.postings[term].values()))
+		return dfr/ctf
 
 	def get_idf(self, term):
 		return log(len(self.docs)/len(self.postings[term]))

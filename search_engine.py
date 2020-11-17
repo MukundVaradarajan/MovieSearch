@@ -39,10 +39,11 @@ class Engine:
 
 	def vectorize_doc(self, doc_dict):
 		doc_vec = defaultdict(int)
+		#TF-IDF calculation
 		max_freq = max(list(doc_dict.values()))
 		for term in doc_dict:
 			term_freq = doc_dict[term]/max_freq
-			idf = self.index.get_idf(term)
+			idf = self.index.get_midf(term)
 			doc_vec[term] = term_freq*idf
 		return doc_vec
 
@@ -52,7 +53,7 @@ class Engine:
 		q_vec = defaultdict(int)
 		for term in q_freq:
 			term_freq = q_freq[term]/max_freq
-			idf = self.index.get_idf(term)
+			idf = self.index.get_midf(term)
 			q_vec[term] = term_freq*idf
 		return q_vec
 

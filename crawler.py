@@ -110,22 +110,13 @@ def get_all_lists(url):
 			if 'class' in table.attrs and table.attrs['class'] == ['wikitable', 'sortable']:
 				# Send them to crawl_film_list to be parsed into 
 				# individual films
-				# print(table)
 				crawl_film_list(table)
 		print(year, 'finished')
 
 	df = pd.DataFrame.from_dict(movie_db)
 	df.to_csv(folder+'/movies.csv', index=False)
 	
-	# year_html = open_html_file()
-	# year = 2015
-	# year_url = url_base + str(year)
-	# year_html = urlopen(year_url)
-	# year_soup = bs(year_html, 'html.parser')
-	# all_tables = year_soup.find_all('table')
-	# print(all_tables)
-
-
-get_all_lists(url_base)
+if __name__ == '__main__':
+	get_all_lists(url_base)
 # print(2)
 # open_html_file()
