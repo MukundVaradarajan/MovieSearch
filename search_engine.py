@@ -5,17 +5,18 @@ from collections import Counter, defaultdict
 from math import sqrt
 import pickle
 import os
+from math import log2
 
 class Engine:
 	def __init__(self, collection):
 		self.index = collection
-		self.terms = []
+		# self.terms = []
 		self.max_results = 5
-		self.set_dims(collection)
+		# self.set_dims(collection)
 
-	def set_dims(self, collection):
-		for term in self.index.vocabulary:
-			self.terms.append(term)
+	# def set_dims(self, collection):
+	# 	for term in self.index.vocabulary:
+	# 		self.terms.append(term)
 
 	def cosine_sim(self, doc1, doc2):
 		key_set1 = set(doc1.keys())
@@ -40,19 +41,21 @@ class Engine:
 	def vectorize_doc(self, doc_dict):
 		doc_vec = defaultdict(int)
 		#TF-IDF calculation
-		max_freq = max(list(doc_dict.values()))
+		# max_freq = max(list(doc_dict.values()))
 		for term in doc_dict:
-			term_freq = doc_dict[term]/max_freq
+			# term_freq = doc_dict[term]/max_freq
+			term_freq = log2(1+doc_dict[term])
 			idf = self.index.get_midf(term)
 			doc_vec[term] = term_freq*idf
 		return doc_vec
 
 	def format_query(self, query_tokens):
 		q_freq = dict(Counter(query_tokens))
-		max_freq = max(list(q_freq.values()))
+		# max_freq = max(list(q_freq.values()))
 		q_vec = defaultdict(int)
 		for term in q_freq:
-			term_freq = q_freq[term]/max_freq
+			# term_freq = q_freq[term]/max_freq
+			term_freq = log2(1+q_freq[term])
 			idf = self.index.get_midf(term)
 			q_vec[term] = term_freq*idf
 		return q_vec

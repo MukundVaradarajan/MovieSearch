@@ -4,30 +4,16 @@ from urllib.request import urlopen
 import os
 import pandas as pd
 import time
+import shutil
 
 domain_base = 'https://en.wikipedia.org/'
 url_base = 'https://en.wikipedia.org/wiki/List_of_American_films_of_'
 base_year = 2015
 final_year = 2020
 folder = '/home/mukund/Documents/College/Sem-IX/IR/Films'
-folder_created = False
-movie_db = {'url': [], 'name': [], 'location': []}
-
-def open_html_file(location='/home/mukund/Documents/College/Sem-IX/IR/MovieSearch/2015A.html'):
-	import codecs
-	# print(1)
-	f = codecs.open(location, 'r')
-	value = f.read()
-	f.close()
-	return value
-
+# movie_db = {'url': [], 'name': [], 'location': []}
 
 def save_to_file(data, file_name):
-	try:
-		os.mkdir(folder)
-		folder_created = True
-	except:
-		pass
 	location = os.path.join(folder, file_name+'.txt')
 	
 	try:
@@ -94,9 +80,17 @@ def crawl_film_list(soup_table):
 	return
 
 def get_all_lists(url):
-	folder_created = False
-	print('Started crawling...')
+	try:
+		os.mkdir(folder)
+	except:
+		shutil.rmtree(folder)
+		os.mkdir(folder)
+	print('Created folder. Started crawling...')
+	
+	final_df = pd.DataFrame()
+	global movie_db
 	for year in range(base_year, final_year+1):
+		movie_db = {'url': [], 'name': [], 'location': []}
 		year_url = url_base + str(year)
 		# Crawl the page for a particular year
 		print(year, time.time())
@@ -113,8 +107,16 @@ def get_all_lists(url):
 				crawl_film_list(table)
 		print(year, 'finished')
 
-	df = pd.DataFrame.from_dict(movie_db)
-	df.to_csv(folder+'/movies.csv', index=False)
+		# Save 1 year data to dataframe and refresh dict again
+		# print(movie_db)
+		df = pd.DataFrame.from_dict(movie_db)
+		final_df = final_df.append(df, ignore_index=True)
+		print('final:\n', final_df.shape)
+		
+		new_db = {'url': [], 'name': [], 'location': []}
+		movie_db = new_db
+
+	final_df.to_csv(folder+'/movies.csv', index=False)
 	
 if __name__ == '__main__':
 	get_all_lists(url_base)

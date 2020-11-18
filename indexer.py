@@ -9,7 +9,8 @@ from nltk.stem import WordNetLemmatizer
 from collections import Counter
 from math import log
 
-en_stop = set(stopwords.words('english'))
+metadata_location = '/home/mukund/Documents/College/Sem-IX/IR/Films'
+
 
 def getDefDict():
 	return defaultdict(int)
@@ -17,25 +18,27 @@ def getDefDict():
 class Index:
 	def __init__(self):
 		self.lemmatizer = WordNetLemmatizer()
-		self.docs = {}
-		self.vocabulary = {}
+		self.stop_words = set(stopwords.words('english'))
+		# self.docs = {}
+		# self.vocabulary = {}
 		self.doc_rep = defaultdict(getDefDict)
 		self.postings = defaultdict(getDefDict)
 
 
 	def get_corpus_size(self):
-		return len(self.docs)
+		return len(self.doc_rep)
 
 	def get_vocab_size(self):
-		return len(self.vocabulary)
+		return len(self.postings)
 
 	def pre_process_doc(self, doc):
 		tokens = word_tokenize(doc)
-		cleaned_tokens = [w.lower() for w in tokens if w.lower() not in en_stop]
+		cleaned_tokens = [w.lower() for w in tokens if w.lower() not in self.stop_words]
 		lem_tokens = [self.lemmatizer.lemmatize(token) for token in cleaned_tokens]
 		return lem_tokens
 
 	def update_index(self, tokens, doc):
+		'''
 		#Add token to the vocabulary and set dimension number
 		for token in tokens:
 			if token not in self.vocabulary:
@@ -44,7 +47,7 @@ class Index:
 		#Add doc to the corpus and give dimension to doc
 		if doc not in self.docs:
 			self.docs[doc] = self.get_corpus_size() + 1
-		
+		'''
 		#Update posting list
 		token_set = set(tokens)
 		for token in token_set:
@@ -55,17 +58,10 @@ class Index:
 		for uq_token in term_freq:
 			self.doc_rep[doc][uq_token] += term_freq[uq_token]
 
-	def create_index(self):
-		location = '/home/mukund/Documents/College/Sem-IX/IR/Films'
+	def create_index(self, location):
 		movie_data = pd.read_csv(location+'/movies.csv', header=0)
 		iteration = 0
 		for index, row in movie_data.iterrows():
-			iteration += 1
-
-			# #Smaller set
-			# if(iteration > 10):
-			# 	break
-
 			lines = []
 			with open(row['location'], 'r') as f:
 				lines = f.readlines()
@@ -102,8 +98,8 @@ class Index:
 	def print(self):
 		print(self.get_corpus_size())
 		print(self.get_vocab_size())
-		print(dict(self.postings))
-		print(dict(self.doc_rep))
+		# print(dict(self.postings))
+		# print(dict(self.doc_rep))
 
 def dump_index(collection):
 	with open('index.pickle', 'wb') as f:
@@ -111,6 +107,6 @@ def dump_index(collection):
 
 if __name__ == '__main__':
 	movie_index = Index()
-	movie_index.create_index()
+	movie_index.create_index(metadata_location)
 	movie_index.print()
 	dump_index(movie_index)
